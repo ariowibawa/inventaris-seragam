@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   FileText, Printer, Landmark, ClipboardList, AlertTriangle,
-  Search, ChevronLeft, ChevronRight, TrendingUp,
+  Search, ChevronLeft, ChevronRight, TrendingUp, Loader2,
 } from "lucide-react";
 
 type ReportItem = {
@@ -18,7 +18,7 @@ type ReportItem = {
   stokAwal: number; masuk: number; keluar: number; stokAkhir: number; status: string;
 };
 
-type Category = { id: string; name: string };
+
 
 interface Props {
   items: ReportItem[];
@@ -26,7 +26,6 @@ interface Props {
   currentPage: number;
   totalPages: number;
   summary: { totalStockValue: number; totalItems: number; lowStockCount: number };
-  categories: Category[];
   filters: { search: string };
 }
 
@@ -37,6 +36,8 @@ export default function LaporanClient({
   const searchParams = useSearchParams();
   const [searchValue, setSearchValue] = useState(filters.search);
   const [activeTab] = useState("Laporan Stok");
+  const [isExporting, setIsExporting] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
 
   const tabs = ["Laporan Stok"];
 
@@ -53,21 +54,256 @@ export default function LaporanClient({
     router.push(`/laporan?${params.toString()}`);
   }
 
+  async function handleExportExcel() {
+    setIsExporting(true);
+    try {
+      const params = new URLSearchParams();
+      if (filters.search) params.set("search", filters.search);
+      const response = await fetch(`/api/laporan/export?${params.toString()}`);
+      if (!response.ok) throw new Error("Export gagal");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const today = new Date().toISOString().slice(0, 10);
+      a.download = `Laporan_Stok_${today}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch {
+      alert("Gagal mengexport file. Silakan coba lagi.");
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
+  function handlePrint() {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      alert("Popup diblokir. Silakan izinkan popup untuk mencetak.");
+      return;
+    }
+
+    const today = new Date().toLocaleDateString("id-ID", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    const totalStokAwal = items.reduce((s, i) => s + i.stokAwal, 0);
+    const totalMasuk = items.reduce((s, i) => s + i.masuk, 0);
+    const totalKeluar = items.reduce((s, i) => s + i.keluar, 0);
+    const totalStokAkhir = items.reduce((s, i) => s + i.stokAkhir, 0);
+
+    const rows = items
+      .map(
+        (item, idx) => `
+      <tr>
+        <td style="text-align:center;">${idx + 1}</td>
+        <td>${item.sku}</td>
+        <td>${item.nama}</td>
+        <td>${item.kategori}</td>
+        <td style="text-align:center;">${item.ukuran}</td>
+        <td style="text-align:center;">${item.stokAwal}</td>
+        <td style="text-align:center; color:#059669;">${item.masuk > 0 ? `+${item.masuk}` : item.masuk}</td>
+        <td style="text-align:center; color:#e11d48;">${item.keluar > 0 ? `-${item.keluar}` : item.keluar}</td>
+        <td style="text-align:center; font-weight:600;">${item.stokAkhir}</td>
+        <td style="text-align:center;">
+          <span style="
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            ${item.status === 'Habis' ? 'background:#fee2e2; color:#be123c;' : ''}
+            ${item.status === 'Stok Rendah' ? 'background:#fff1f2; color:#e11d48;' : ''}
+            ${item.status === 'Tersedia' ? 'background:#f3f4f6; color:#4b5563;' : ''}
+          ">${item.status}</span>
+        </td>
+      </tr>`
+      )
+      .join("");
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Laporan Stok Seragam</title>
+        <style>
+          @page { size: landscape; margin: 15mm; }
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #2d201c;
+            padding: 20px;
+          }
+          .header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #8a6c5f;
+          }
+          .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #4a3a31;
+            margin-bottom: 4px;
+          }
+          .header p {
+            font-size: 12px;
+            color: #8a6c5f;
+          }
+          .summary {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+          }
+          .summary-card {
+            flex: 1;
+            border: 1px solid #e5dcd1;
+            border-radius: 8px;
+            padding: 12px 16px;
+            background: #fdfbf7;
+          }
+          .summary-card .label {
+            font-size: 11px;
+            color: #8a6c5f;
+            margin-bottom: 4px;
+          }
+          .summary-card .value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #4a3a31;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+          }
+          th {
+            background: #8a6c5f;
+            color: white;
+            padding: 8px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 11px;
+          }
+          td {
+            padding: 7px 10px;
+            border-bottom: 1px solid #e5dcd1;
+          }
+          tr:nth-child(even) { background: #fdfbf7; }
+          tr:hover { background: #f0e8df; }
+          .footer-row td {
+            font-weight: 700;
+            background: #f8f5f1;
+            border-top: 2px solid #8a6c5f;
+            border-bottom: 2px solid #8a6c5f;
+            color: #4a3a31;
+          }
+          .footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 10px;
+            color: #8a6c5f;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>LAPORAN STOK SERAGAM</h1>
+          <p>${today}</p>
+        </div>
+
+        <div class="summary">
+          <div class="summary-card">
+            <div class="label">Total Nilai Stok</div>
+            <div class="value">${fmtRp(summary.totalStockValue)}</div>
+          </div>
+          <div class="summary-card">
+            <div class="label">Total Item Tersedia</div>
+            <div class="value">${fmtNum(summary.totalItems)} pcs</div>
+          </div>
+          <div class="summary-card">
+            <div class="label">Item Stok Rendah</div>
+            <div class="value" style="color:#e11d48;">${summary.lowStockCount} SKU</div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Kode SKU</th>
+              <th>Nama Item</th>
+              <th>Kategori</th>
+              <th>Ukuran</th>
+              <th>Stok Awal</th>
+              <th>Masuk</th>
+              <th>Keluar</th>
+              <th>Stok Akhir</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+            <tr class="footer-row">
+              <td colspan="5" style="text-align:right;">TOTAL</td>
+              <td style="text-align:center;">${totalStokAwal}</td>
+              <td style="text-align:center;">${totalMasuk}</td>
+              <td style="text-align:center;">${totalKeluar}</td>
+              <td style="text-align:center;">${totalStokAkhir}</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="footer">
+          Dicetak pada ${today} — Inventaris Seragam
+        </div>
+
+        <script>
+          window.onload = function() {
+            window.print();
+            window.onafterprint = function() { window.close(); };
+          };
+        </script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+  }
+
   const fmtRp = (n: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
   const fmtNum = (n: number) => new Intl.NumberFormat("id-ID").format(n);
   const startIdx = (currentPage - 1) * 10 + 1;
   const endIdx = Math.min(currentPage * 10, total);
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6">
+    <div className="p-8 max-w-7xl mx-auto space-y-6" ref={printRef}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-border pb-4">
         <h1 className="text-3xl font-bold text-[#4a3a31]">Laporan</h1>
         <div className="flex gap-3">
-          <Button variant="outline" className="border-[#8a6c5f] text-[#8a6c5f] hover:bg-[#8a6c5f]/10">
-            <FileText className="mr-2 h-4 w-4" /> Export Excel
+          <Button
+            variant="outline"
+            className="border-[#8a6c5f] text-[#8a6c5f] hover:bg-[#8a6c5f]/10"
+            onClick={handleExportExcel}
+            disabled={isExporting}
+          >
+            {isExporting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <FileText className="mr-2 h-4 w-4" />
+            )}
+            {isExporting ? "Mengexport..." : "Export Excel"}
           </Button>
-          <Button className="bg-[#8a6c5f] hover:bg-[#6b5247] text-white">
+          <Button
+            className="bg-[#8a6c5f] hover:bg-[#6b5247] text-white"
+            onClick={handlePrint}
+          >
             <Printer className="mr-2 h-4 w-4" /> Print
           </Button>
         </div>
