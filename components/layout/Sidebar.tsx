@@ -15,6 +15,7 @@ import {
   Power
 } from "lucide-react";
 import { logout } from "@/app/actions/auth";
+import { useSidebar } from "@/components/layout/SidebarToggleProvider";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -26,8 +27,9 @@ const navItems = [
   { to: "/laporan", icon: FileText, label: "Laporan" },
 ];
 
-export default function Sidebar({ isCollapsed }: { isCollapsed?: boolean }) {
+export default function Sidebar() {
   const pathname = usePathname();
+  const { isCollapsed } = useSidebar();
 
   return (
     <aside className={`fixed left-0 top-0 h-screen bg-sidebar text-sidebar-foreground w-64 flex flex-col transition-all duration-300 z-50 ${isCollapsed ? "-translate-x-full" : "translate-x-0"}`}>

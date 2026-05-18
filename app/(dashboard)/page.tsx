@@ -1,8 +1,25 @@
 import StatsCard from "@/components/dashboard/StatsCard";
-import SalesChart from "@/components/dashboard/SalesChart";
 import TopProducts from "@/components/dashboard/TopProducts";
 import { Package, ShoppingBag, ShoppingCart, ArrowUpRight, ArrowDownRight, Wallet } from "lucide-react";
 import { getDashboardStats, getChartData, getTopProducts } from "@/app/actions/dashboard";
+import dynamic from "next/dynamic";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
+const SalesChart = dynamic(
+  () => import("@/components/dashboard/SalesChart"),
+  {
+    loading: () => (
+      <Card className="flex flex-col h-full border-border shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <div className="h-5 w-48 bg-muted rounded animate-pulse" />
+        </CardHeader>
+        <CardContent className="flex-1 min-h-[300px] flex items-center justify-center">
+          <p className="text-sm text-muted-foreground animate-pulse">Memuat grafik...</p>
+        </CardContent>
+      </Card>
+    ),
+  }
+);
 
 export default async function DashboardPage() {
   const [stats, chartData, topProducts] = await Promise.all([

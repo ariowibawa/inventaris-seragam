@@ -163,17 +163,20 @@ export default function ProdukClient({
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="kategori">Kategori</Label>
-                      <Select name="categoryId" defaultValue={editProduct?.categoryId || ""}>
-                        <SelectTrigger id="kategori" className="bg-[#fdfbf7] border-[#e5dcd1]">
-                          <SelectValue placeholder="Pilih Kategori" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((c) => (
-                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {formState?.errors?.categoryId && <p className="text-xs text-red-500">{formState.errors.categoryId[0]}</p>}
+                      <Input
+                        id="kategori"
+                        name="categoryName"
+                        list="kategori-list"
+                        defaultValue={editProduct?.category?.name || ""}
+                        placeholder="Pilih atau ketik kategori..."
+                        className="bg-[#fdfbf7] border-[#e5dcd1]"
+                      />
+                      <datalist id="kategori-list">
+                        {categories.map((c) => (
+                          <option key={c.id} value={c.name} />
+                        ))}
+                      </datalist>
+                      {formState?.errors?.categoryName && <p className="text-xs text-red-500">{formState.errors.categoryName[0]}</p>}
                     </div>
                     <div className="space-y-2 md:col-span-2">
                       <Label htmlFor="sku">SKU (Stock Keeping Unit)</Label>

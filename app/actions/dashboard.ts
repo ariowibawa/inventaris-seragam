@@ -3,20 +3,32 @@
 import { prisma } from "@/lib/prisma";
 
 export async function getDashboardStats() {
-  const allProducts = await prisma.product.findMany({
-    where: { isActive: true },
-    select: { stock: true },
-  });
-  const totalStock = allProducts.reduce((s, p) => s + p.stock, 0);
+  const [
+    stockAgg,
+    totalSalesCount,
+    totalPurchasesCount,
+    incomeAgg,
+    expenseAgg,
+  ] = await Promise.all([
+    prisma.product.aggregate({
+      where: { isActive: true },
+      _sum: { stock: true },
+    }),
+    prisma.sale.count(),
+    prisma.purchase.count(),
+    prisma.cashflow.aggregate({
+      where: { type: "income" },
+      _sum: { amount: true },
+    }),
+    prisma.cashflow.aggregate({
+      where: { type: "expense" },
+      _sum: { amount: true },
+    }),
+  ]);
 
-  const totalSalesCount = await prisma.sale.count();
-  const totalPurchasesCount = await prisma.purchase.count();
-
-  const allCashflows = await prisma.cashflow.findMany({
-    select: { type: true, amount: true },
-  });
-  const totalIncome = allCashflows.filter((c) => c.type === "income").reduce((s, c) => s + c.amount, 0);
-  const totalExpense = allCashflows.filter((c) => c.type === "expense").reduce((s, c) => s + c.amount, 0);
+  const totalStock = stockAgg._sum.stock || 0;
+  const totalIncome = incomeAgg._sum.amount || 0;
+  const totalExpense = expenseAgg._sum.amount || 0;
   const netProfit = totalIncome - totalExpense;
 
   return { totalStock, totalSalesCount, totalPurchasesCount, totalIncome, totalExpense, netProfit };
@@ -135,15 +147,24 @@ export async function getReportData(filters: {
     };
   });
 
-  // Summary stats
-  const allActive = await prisma.product.findMany({
-    where: { isActive: true },
-    select: { stock: true, costPrice: true, minimumStock: true },
-  });
+  // Summary stats — use aggregate + targeted query
+  const [stockSummary, outOfStockCount, activeWithStock] = await Promise.all([
+    prisma.product.aggregate({
+      where: { isActive: true },
+      _sum: { stock: true },
+    }),
+    prisma.product.count({
+      where: { isActive: true, stock: 0 },
+    }),
+    prisma.product.findMany({
+      where: { isActive: true, stock: { gt: 0 } },
+      select: { stock: true, costPrice: true, minimumStock: true },
+    }),
+  ]);
 
-  const totalStockValue = allActive.reduce((s, p) => s + p.stock * p.costPrice, 0);
-  const totalItems = allActive.reduce((s, p) => s + p.stock, 0);
-  const lowStockCount = allActive.filter((p) => p.stock > 0 && p.stock <= p.minimumStock).length + allActive.filter((p) => p.stock === 0).length;
+  const totalStockValue = activeWithStock.reduce((s, p) => s + p.stock * p.costPrice, 0);
+  const totalItems = stockSummary._sum.stock || 0;
+  const lowStockCount = activeWithStock.filter((p) => p.stock <= p.minimumStock).length + outOfStockCount;
 
   return {
     items: reportItems,

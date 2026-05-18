@@ -33,15 +33,32 @@ export async function getCashflowSummary(startDate?: string, endDate?: string) {
     if (endDate) (where.cashflowDate as Record<string, unknown>).lte = new Date(endDate + "T23:59:59");
   }
 
-  const allEntries = await prisma.cashflow.findMany({ where, select: { type: true, amount: true } });
+  // Use parallel aggregate queries instead of findMany + manual filter/reduce
+  const [filteredIncome, filteredExpense, allTimeIncome, allTimeExpense] = await Promise.all([
+    prisma.cashflow.aggregate({
+      where: { ...where, type: "income" },
+      _sum: { amount: true },
+    }),
+    prisma.cashflow.aggregate({
+      where: { ...where, type: "expense" },
+      _sum: { amount: true },
+    }),
+    prisma.cashflow.aggregate({
+      where: { type: "income" },
+      _sum: { amount: true },
+    }),
+    prisma.cashflow.aggregate({
+      where: { type: "expense" },
+      _sum: { amount: true },
+    }),
+  ]);
 
-  const totalIncome = allEntries.filter((e) => e.type === "income").reduce((s, e) => s + e.amount, 0);
-  const totalExpense = allEntries.filter((e) => e.type === "expense").reduce((s, e) => s + e.amount, 0);
+  const totalIncome = filteredIncome._sum.amount || 0;
+  const totalExpense = filteredExpense._sum.amount || 0;
   const netProfit = totalIncome - totalExpense;
 
   // Saldo = all-time balance
-  const allTime = await prisma.cashflow.findMany({ select: { type: true, amount: true } });
-  const saldo = allTime.reduce((s, e) => e.type === "income" ? s + e.amount : s - e.amount, 0);
+  const saldo = (allTimeIncome._sum.amount || 0) - (allTimeExpense._sum.amount || 0);
 
   return { saldo, totalIncome, totalExpense, netProfit };
 }

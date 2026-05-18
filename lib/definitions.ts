@@ -27,7 +27,7 @@ export const ChangePasswordSchema = z
 export const ProductSchema = z.object({
   name: z.string().min(1, { message: "Nama produk wajib diisi" }),
   sku: z.string().min(1, { message: "SKU wajib diisi" }),
-  categoryId: z.string().min(1, { message: "Kategori wajib dipilih" }),
+  categoryName: z.string().min(1, { message: "Kategori wajib diisi" }),
   size: z.string().min(1, { message: "Ukuran wajib diisi" }),
   color: z.string().min(1, { message: "Warna wajib diisi" }),
   costPrice: z.number().min(0, { message: "Harga modal harus >= 0" }),

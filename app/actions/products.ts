@@ -88,7 +88,7 @@ export async function createProduct(
   const rawData = {
     name: formData.get("name") as string,
     sku: formData.get("sku") as string,
-    categoryId: formData.get("categoryId") as string,
+    categoryName: formData.get("categoryName") as string,
     size: formData.get("size") as string,
     color: formData.get("color") as string,
     costPrice: Number(String(formData.get("costPrice")).replace(/[^0-9]/g, "")) || 0,
@@ -119,8 +119,23 @@ export async function createProduct(
     };
   }
 
+  let category = await prisma.category.findFirst({
+    where: { name: { equals: validatedFields.data.categoryName, mode: "insensitive" } },
+  });
+
+  if (!category) {
+    category = await prisma.category.create({
+      data: { name: validatedFields.data.categoryName },
+    });
+  }
+
+  const { categoryName, ...productData } = validatedFields.data;
+
   await prisma.product.create({
-    data: validatedFields.data,
+    data: {
+      ...productData,
+      categoryId: category.id,
+    },
   });
 
   // If stock > 0, create initial stock movement
@@ -163,7 +178,7 @@ export async function updateProduct(
   const rawData = {
     name: formData.get("name") as string,
     sku: formData.get("sku") as string,
-    categoryId: formData.get("categoryId") as string,
+    categoryName: formData.get("categoryName") as string,
     size: formData.get("size") as string,
     color: formData.get("color") as string,
     costPrice: Number(String(formData.get("costPrice")).replace(/[^0-9]/g, "")) || 0,
@@ -204,11 +219,24 @@ export async function updateProduct(
     return { message: "Produk tidak ditemukan." };
   }
 
-  const { stock, ...updateData } = validatedFields.data;
+  let category = await prisma.category.findFirst({
+    where: { name: { equals: validatedFields.data.categoryName, mode: "insensitive" } },
+  });
+
+  if (!category) {
+    category = await prisma.category.create({
+      data: { name: validatedFields.data.categoryName },
+    });
+  }
+
+  const { stock, categoryName, ...updateData } = validatedFields.data;
 
   await prisma.product.update({
     where: { id },
-    data: updateData,
+    data: {
+      ...updateData,
+      categoryId: category.id,
+    },
   });
 
   revalidatePath("/produk");
