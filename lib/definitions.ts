@@ -56,7 +56,7 @@ export const PurchaseItemSchema = z.object({
 });
 
 export const PurchaseSchema = z.object({
-  supplierId: z.string().min(1, { message: "Supplier wajib dipilih" }),
+  supplierName: z.string().min(1, { message: "Supplier wajib diisi" }),
   purchaseDate: z.string().min(1, { message: "Tanggal wajib diisi" }),
   notes: z.string().optional(),
   items: z

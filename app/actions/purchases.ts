@@ -103,7 +103,7 @@ export async function createPurchase(
   }
 
   const rawData = {
-    supplierId: formData.get("supplierId") as string,
+    supplierName: formData.get("supplierName") as string,
     purchaseDate: formData.get("purchaseDate") as string,
     notes: (formData.get("notes") as string) || undefined,
     items: parsedItems,
@@ -118,7 +118,7 @@ export async function createPurchase(
     };
   }
 
-  const { supplierId, purchaseDate, notes, items } = validatedFields.data;
+  const { supplierName, purchaseDate, notes, items } = validatedFields.data;
 
   // Calculate total
   const totalAmount = items.reduce(
@@ -130,10 +130,21 @@ export async function createPurchase(
 
   // Use transaction: create purchase, update stock, create stock movements, create cashflow
   await prisma.$transaction(async (tx) => {
+    // Find or create supplier
+    let supplier = await tx.supplier.findFirst({
+      where: { name: supplierName },
+    });
+    
+    if (!supplier) {
+      supplier = await tx.supplier.create({
+        data: { name: supplierName },
+      });
+    }
+
     const purchase = await tx.purchase.create({
       data: {
         purchaseNumber,
-        supplierId,
+        supplierId: supplier.id,
         purchaseDate: new Date(purchaseDate),
         totalAmount,
         notes,

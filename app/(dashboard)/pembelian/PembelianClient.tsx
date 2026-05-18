@@ -160,10 +160,7 @@ export default function PembelianClient({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Supplier</Label>
-                      <select name="supplierId" className="flex h-8 w-full items-center rounded-lg border border-[#e5dcd1] bg-white px-2.5 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
-                        <option value="">-- Pilih Supplier --</option>
-                        {suppliers.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                      </select>
+                      <Input name="supplierName" placeholder="Nama Supplier..." required className="bg-[#fdfbf7] border-[#e5dcd1] h-8" />
                     </div>
                     <div className="space-y-2">
                       <Label>Tanggal Pembelian</Label>
