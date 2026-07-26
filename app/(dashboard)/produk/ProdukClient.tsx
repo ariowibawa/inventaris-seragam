@@ -24,7 +24,7 @@ import {
   Image as ImageIcon, X, Box, Tag, Layers, Save, Loader2,
 } from "lucide-react";
 import {
-  createProduct, updateProduct, deleteProduct, toggleProductStatus,
+  createProduct, updateProduct, deleteProduct,
   type ProductWithCategory,
 } from "@/app/actions/products";
 
@@ -38,7 +38,7 @@ interface Props {
   perPage: number;
   categories: Category[];
   sizes: string[];
-  filters: { search: string; categoryId: string; size: string; status: string };
+  filters: { search: string; categoryId: string; size: string };
 }
 
 export default function ProdukClient({
@@ -111,29 +111,25 @@ export default function ProdukClient({
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Yakin ingin menghapus produk ini?")) return;
+    if (!confirm("Yakin ingin menghapus produk ini secara permanen?")) return;
     await deleteProduct(id);
-  }
-
-  async function handleToggle(id: string) {
-    await toggleProductStatus(id);
   }
 
   const startIdx = (currentPage - 1) * perPage + 1;
   const endIdx = Math.min(currentPage * perPage, totalProducts);
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-bold text-foreground">Produk</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Produk</h1>
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditProduct(null); }}>
-          <DialogTrigger render={<Button className="bg-[#8a6c5f] hover:bg-[#6b5247] text-white" onClick={openCreateDialog} />}>
+          <DialogTrigger render={<Button className="w-full sm:w-auto bg-[#8a6c5f] hover:bg-[#6b5247] text-white" onClick={openCreateDialog} />}>
             <Plus className="mr-2 h-4 w-4" /> Tambah Produk
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[700px] p-0 border-[#e5dcd1] bg-[#fdfbf7] shadow-lg data-open:duration-300 data-open:animate-in data-open:zoom-in-95 data-open:slide-in-from-bottom-4 overflow-hidden" showCloseButton={false}>
-            <div className="flex justify-between items-center p-6 border-b border-[#e5dcd1]">
-              <DialogTitle className="text-xl font-semibold text-foreground">
+          <DialogContent className="w-[95vw] sm:max-w-[720px] max-h-[90vh] p-0 border-[#e5dcd1] bg-[#fdfbf7] shadow-lg data-open:duration-300 data-open:animate-in data-open:zoom-in-95 data-open:slide-in-from-bottom-4 overflow-hidden flex flex-col" showCloseButton={false}>
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b border-[#e5dcd1]">
+              <DialogTitle className="text-lg sm:text-xl font-semibold text-foreground">
                 {editProduct ? "Edit Produk" : "Tambah Produk"}
               </DialogTitle>
               <DialogClose render={<Button variant="ghost" size="icon" className="text-muted-foreground hover:bg-[#f0e8df] hover:text-foreground" />}>
@@ -142,20 +138,20 @@ export default function ProdukClient({
             </div>
 
             {formState?.message && !formState.success && (
-              <div className="mx-6 mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">
+              <div className="mx-4 sm:mx-6 mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">
                 {formState.message}
               </div>
             )}
 
-            <form action={formAction}>
+            <form action={formAction} className="flex-1 flex flex-col overflow-hidden">
               {editProduct && <input type="hidden" name="id" value={editProduct.id} />}
-              <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto custom-scrollbar flex-1">
                 {/* Group 1: Informasi Dasar */}
-                <div className="bg-white p-5 rounded-xl border border-[#e5dcd1] shadow-sm space-y-4">
+                <div className="bg-white p-4 sm:p-5 rounded-xl border border-[#e5dcd1] shadow-sm space-y-4">
                   <h3 className="font-medium text-sm text-[#8a6c5f] mb-3 flex items-center gap-2">
                     <Box className="w-4 h-4" /> Informasi Dasar
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="nama-produk">Nama Produk</Label>
                       <Input id="nama-produk" name="name" defaultValue={editProduct?.name || ""} placeholder="Masukkan nama produk..." className="bg-[#fdfbf7] border-[#e5dcd1]" />
@@ -178,7 +174,7 @@ export default function ProdukClient({
                       </datalist>
                       {formState?.errors?.categoryName && <p className="text-xs text-red-500">{formState.errors.categoryName[0]}</p>}
                     </div>
-                    <div className="space-y-2 md:col-span-2">
+                    <div className="space-y-2 sm:col-span-2">
                       <Label htmlFor="sku">SKU (Stock Keeping Unit)</Label>
                       <Input id="sku" name="sku" defaultValue={editProduct?.sku || ""} placeholder="Contoh: KSP-001-WHT" className="bg-[#fdfbf7] border-[#e5dcd1]" />
                       {formState?.errors?.sku && <p className="text-xs text-red-500">{formState.errors.sku[0]}</p>}
@@ -187,11 +183,11 @@ export default function ProdukClient({
                 </div>
 
                 {/* Group 2: Detail & Harga */}
-                <div className="bg-white p-5 rounded-xl border border-[#e5dcd1] shadow-sm space-y-4">
+                <div className="bg-white p-4 sm:p-5 rounded-xl border border-[#e5dcd1] shadow-sm space-y-4">
                   <h3 className="font-medium text-sm text-[#8a6c5f] mb-3 flex items-center gap-2">
                     <Tag className="w-4 h-4" /> Detail & Harga
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="ukuran">Ukuran</Label>
                       <Input id="ukuran" name="size" defaultValue={editProduct?.size || ""} placeholder="Contoh: L, M, 32, All Size" className="bg-[#fdfbf7] border-[#e5dcd1]" />
@@ -220,11 +216,11 @@ export default function ProdukClient({
                 </div>
 
                 {/* Group 3: Inventaris */}
-                <div className="bg-white p-5 rounded-xl border border-[#e5dcd1] shadow-sm space-y-4">
+                <div className="bg-white p-4 sm:p-5 rounded-xl border border-[#e5dcd1] shadow-sm space-y-4">
                   <h3 className="font-medium text-sm text-[#8a6c5f] mb-3 flex items-center gap-2">
                     <Layers className="w-4 h-4" /> Inventaris
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {!editProduct && (
                       <div className="space-y-2">
                         <Label htmlFor="stok">Stok Awal</Label>
@@ -235,27 +231,15 @@ export default function ProdukClient({
                       <Label htmlFor="min-stok">Stok Minimum</Label>
                       <Input id="min-stok" name="minimumStock" type="number" defaultValue={editProduct?.minimumStock || 15} placeholder="15" onFocus={(e) => e.target.select()} className="bg-[#fdfbf7] border-[#e5dcd1]" />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="status-produk">Status Produk</Label>
-                      <Select name="isActive" defaultValue={editProduct ? String(editProduct.isActive) : "true"}>
-                        <SelectTrigger id="status-produk" className="bg-[#fdfbf7] border-[#e5dcd1]">
-                          <SelectValue placeholder="Pilih Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="true">Aktif</SelectItem>
-                          <SelectItem value="false">Non-aktif</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="p-6 border-t border-[#e5dcd1] bg-white flex justify-end gap-3 rounded-b-xl">
-                <DialogClose render={<Button variant="outline" className="border-[#8a6c5f] text-[#8a6c5f] hover:bg-[#8a6c5f]/10" />}>
+              <div className="p-4 sm:p-6 border-t border-[#e5dcd1] bg-white flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-xl">
+                <DialogClose render={<Button variant="outline" className="w-full sm:w-auto border-[#8a6c5f] text-[#8a6c5f] hover:bg-[#8a6c5f]/10" />}>
                   Batal
                 </DialogClose>
-                <Button type="submit" disabled={formPending} className="bg-[#8a6c5f] hover:bg-[#6b5247] text-white">
+                <Button type="submit" disabled={formPending} className="w-full sm:w-auto bg-[#8a6c5f] hover:bg-[#6b5247] text-white">
                   {formPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                   {editProduct ? "Simpan Perubahan" : "Simpan Produk"}
                 </Button>
@@ -266,42 +250,35 @@ export default function ProdukClient({
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-card border-border border rounded-2xl p-4 flex flex-col sm:flex-row gap-4 shadow-sm">
-        <div className="relative flex-1">
+      <div className="bg-card border-border border rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 shadow-sm">
+        <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            className="pl-9 bg-background/50 border-border"
+            className="pl-9 bg-background/50 border-border w-full"
             placeholder="Cari SKU atau Nama Produk..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") updateFilters("search", searchValue); }}
           />
         </div>
-        <div className="flex gap-3 flex-wrap sm:flex-nowrap">
+        <div className="flex gap-2 sm:gap-3 flex-wrap sm:flex-nowrap w-full sm:w-auto">
           <Select value={filters.categoryId} onValueChange={(v) => updateFilters("category", v || "")}>
-            <SelectTrigger className="w-[160px] bg-background/50"><SelectValue placeholder="Semua Kategori" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[160px] bg-background/50"><SelectValue placeholder="Semua Kategori" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="semua">Semua Kategori</SelectItem>
               {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={filters.size} onValueChange={(v) => updateFilters("size", v || "")}>
-            <SelectTrigger className="w-[140px] bg-background/50"><SelectValue placeholder="Semua Ukuran" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[140px] bg-background/50"><SelectValue placeholder="Semua Ukuran" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="semua">Semua Ukuran</SelectItem>
               {sizes.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Select value={filters.status} onValueChange={(v) => updateFilters("status", v || "")}>
-            <SelectTrigger className="w-[140px] bg-background/50"><SelectValue placeholder="Semua Status" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="semua">Semua Status</SelectItem>
-              <SelectItem value="aktif">Aktif</SelectItem>
-              <SelectItem value="non-aktif">Non-aktif</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
+
 
       {/* Table */}
       <div className="bg-card border-border border rounded-2xl shadow-sm overflow-hidden flex flex-col">
@@ -316,13 +293,12 @@ export default function ProdukClient({
                 <TableHead className="font-semibold text-foreground">Harga Modal</TableHead>
                 <TableHead className="font-semibold text-foreground">Harga Jual</TableHead>
                 <TableHead className="font-semibold text-foreground">Stok</TableHead>
-                <TableHead className="font-semibold text-foreground text-center">Status</TableHead>
                 <TableHead className="w-[80px] text-center"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {initialProducts.length === 0 ? (
-                <TableRow><TableCell colSpan={9} className="text-center py-12 text-muted-foreground">Tidak ada produk ditemukan.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center py-12 text-muted-foreground">Tidak ada produk ditemukan.</TableCell></TableRow>
               ) : initialProducts.map((product) => (
                 <TableRow key={product.id} className="hover:bg-muted/20">
                   <TableCell>
@@ -351,13 +327,6 @@ export default function ProdukClient({
                     </span>
                   </TableCell>
                   <TableCell className="text-center">
-                    {product.isActive ? (
-                      <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200">Aktif</Badge>
-                    ) : (
-                      <Badge variant="secondary" className="bg-rose-100 text-rose-700 hover:bg-rose-200 border-rose-200">Non-aktif</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger className={cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0")}>
                         <span className="sr-only">Open menu</span>
@@ -365,9 +334,6 @@ export default function ProdukClient({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem className="cursor-pointer" onClick={() => openEditDialog(product)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer" onClick={() => handleToggle(product.id)}>
-                          {product.isActive ? "Nonaktifkan" : "Aktifkan"}
-                        </DropdownMenuItem>
                         <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={() => handleDelete(product.id)}>Hapus</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

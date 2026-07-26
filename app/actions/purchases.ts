@@ -15,8 +15,10 @@ export type PurchaseWithDetails = {
   createdAt: Date;
   purchaseItems: Array<{
     id: string;
-    productId: string;
-    product: { id: string; name: string; sku: string };
+    productId: string | null;
+    productName?: string | null;
+    productSku?: string | null;
+    product: { id: string; name: string; sku: string } | null;
     quantity: number;
     costPrice: number;
     subtotal: number;
@@ -141,6 +143,20 @@ export async function createPurchase(
       });
     }
 
+    // Fetch product details for snapshot
+    const purchaseItemsData = [];
+    for (const item of items) {
+      const p = await tx.product.findUnique({ where: { id: item.productId } });
+      purchaseItemsData.push({
+        productId: item.productId,
+        productName: p?.name ?? null,
+        productSku: p?.sku ?? null,
+        quantity: item.quantity,
+        costPrice: item.costPrice,
+        subtotal: item.quantity * item.costPrice,
+      });
+    }
+
     const purchase = await tx.purchase.create({
       data: {
         purchaseNumber,
@@ -149,12 +165,7 @@ export async function createPurchase(
         totalAmount,
         notes,
         purchaseItems: {
-          create: items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            costPrice: item.costPrice,
-            subtotal: item.quantity * item.costPrice,
-          })),
+          create: purchaseItemsData,
         },
       },
     });
@@ -221,6 +232,7 @@ export async function deletePurchase(id: string) {
   await prisma.$transaction(async (tx) => {
     // Reverse stock
     for (const item of purchase.purchaseItems) {
+      if (!item.productId) continue;
       const product = await tx.product.findUnique({
         where: { id: item.productId },
       });

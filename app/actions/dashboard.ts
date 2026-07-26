@@ -11,7 +11,6 @@ export async function getDashboardStats() {
     expenseAgg,
   ] = await Promise.all([
     prisma.product.aggregate({
-      where: { isActive: true },
       _sum: { stock: true },
     }),
     prisma.sale.count(),
@@ -85,15 +84,17 @@ export async function getTopProducts() {
     take: 3,
   });
 
+  const productIds = topItems.map((i) => i.productId).filter((id): id is string => id !== null);
+
   const products = await prisma.product.findMany({
-    where: { id: { in: topItems.map((i) => i.productId) } },
+    where: { id: { in: productIds } },
     select: { id: true, name: true },
   });
 
   const productMap = Object.fromEntries(products.map((p) => [p.id, p.name]));
 
   return topItems.map((item) => ({
-    name: productMap[item.productId] || "Unknown",
+    name: item.productId ? (productMap[item.productId] || "Unknown") : "Produk Terhapus",
     sales: item._sum.subtotal || 0,
     qty: item._sum.quantity || 0,
   }));
@@ -105,7 +106,7 @@ export async function getReportData(filters: {
   perPage?: number;
 }) {
   const { search, page = 1, perPage = 10 } = filters;
-  const where: Record<string, unknown> = { isActive: true };
+  const where: Record<string, unknown> = {};
 
   if (search) {
     where.OR = [
@@ -150,14 +151,13 @@ export async function getReportData(filters: {
   // Summary stats — use aggregate + targeted query
   const [stockSummary, outOfStockCount, activeWithStock] = await Promise.all([
     prisma.product.aggregate({
-      where: { isActive: true },
       _sum: { stock: true },
     }),
     prisma.product.count({
-      where: { isActive: true, stock: 0 },
+      where: { stock: 0 },
     }),
     prisma.product.findMany({
-      where: { isActive: true, stock: { gt: 0 } },
+      where: { stock: { gt: 0 } },
       select: { stock: true, costPrice: true, minimumStock: true },
     }),
   ]);

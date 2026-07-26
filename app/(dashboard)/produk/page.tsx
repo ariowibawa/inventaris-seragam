@@ -12,11 +12,10 @@ export default async function ProdukPage({
   const categoryId =
     typeof params.category === "string" ? params.category : "semua";
   const size = typeof params.size === "string" ? params.size : "semua";
-  const status = typeof params.status === "string" ? params.status : "semua";
   const page = typeof params.page === "string" ? parseInt(params.page) : 1;
 
   const [productsData, categories, sizes] = await Promise.all([
-    getProducts({ search, categoryId, size, status, page, perPage: 10 }),
+    getProducts({ search, categoryId, size, page, perPage: 10 }),
     getCategories(),
     getUniqueSizes(),
   ]);
@@ -30,7 +29,7 @@ export default async function ProdukPage({
       perPage={productsData.perPage}
       categories={categories}
       sizes={sizes}
-      filters={{ search, categoryId, size, status }}
+      filters={{ search, categoryId, size }}
     />
   );
 }

@@ -38,13 +38,13 @@ export default async function DashboardPage() {
   const fmtNum = (n: number) => new Intl.NumberFormat("id-ID").format(n);
 
   return (
-    <div className="flex flex-col gap-8 max-w-7xl mx-auto w-full">
+    <div className="flex flex-col gap-6 sm:gap-8 max-w-7xl mx-auto w-full">
       <section>
-        <h2 className="text-3xl font-bold text-foreground">Selamat datang kembali, Admin</h2>
-        <p className="text-muted-foreground mt-1">Ringkasan bisnis bulan ini.</p>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">Selamat datang kembali, Admin</h2>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1">Ringkasan bisnis bulan ini.</p>
       </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <StatsCard title="TOTAL STOK" value={fmtNum(stats.totalStock)} trend="" isPositive={true} Icon={Package} />
         <StatsCard title="TOTAL PENJUALAN" value={fmtNum(stats.totalSalesCount)} trend="" isPositive={true} Icon={ShoppingBag} iconBgColor="bg-[#f5ebe6]" iconColor="text-[#c28e67]" />
         <StatsCard title="TOTAL PEMBELIAN" value={fmtNum(stats.totalPurchasesCount)} trend="" isPositive={true} Icon={ShoppingCart} />
@@ -64,3 +64,4 @@ export default async function DashboardPage() {
     </div>
   );
 }
+

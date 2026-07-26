@@ -12,7 +12,6 @@ export type InventoryProduct = {
   color: string;
   stock: number;
   minimumStock: number;
-  isActive: boolean;
   category: { id: string; name: string };
 };
 
@@ -24,24 +23,22 @@ export type InventoryFilters = {
 };
 
 export async function getInventorySummary() {
-  const [totalProducts, totalStockResult, allActiveProducts] =
+  const [totalProducts, totalStockResult, allProducts] =
     await Promise.all([
-      prisma.product.count({ where: { isActive: true } }),
+      prisma.product.count(),
       prisma.product.aggregate({
-        where: { isActive: true },
         _sum: { stock: true },
       }),
       prisma.product.findMany({
-        where: { isActive: true },
         select: { stock: true, minimumStock: true },
       }),
     ]);
 
-  const lowStock = allActiveProducts.filter(
+  const lowStock = allProducts.filter(
     (p) => p.stock > 0 && p.stock <= p.minimumStock
   ).length;
 
-  const outOfStock = allActiveProducts.filter((p) => p.stock === 0).length;
+  const outOfStock = allProducts.filter((p) => p.stock === 0).length;
 
   return {
     totalProducts,
@@ -54,7 +51,7 @@ export async function getInventorySummary() {
 export async function getInventoryProducts(filters: InventoryFilters = {}) {
   const { search, status, page = 1, perPage = 10 } = filters;
 
-  const where: Record<string, unknown> = { isActive: true };
+  const where: Record<string, unknown> = {};
 
   if (search) {
     where.OR = [

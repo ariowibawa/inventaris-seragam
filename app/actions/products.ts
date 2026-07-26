@@ -16,7 +16,6 @@ export type ProductWithCategory = {
   sellingPrice: number;
   stock: number;
   minimumStock: number;
-  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -25,13 +24,12 @@ export type ProductFilters = {
   search?: string;
   categoryId?: string;
   size?: string;
-  status?: string;
   page?: number;
   perPage?: number;
 };
 
 export async function getProducts(filters: ProductFilters = {}) {
-  const { search, categoryId, size, status, page = 1, perPage = 10 } = filters;
+  const { search, categoryId, size, page = 1, perPage = 10 } = filters;
 
   const where: Record<string, unknown> = {};
 
@@ -48,10 +46,6 @@ export async function getProducts(filters: ProductFilters = {}) {
 
   if (size && size !== "semua") {
     where.size = size;
-  }
-
-  if (status && status !== "semua") {
-    where.isActive = status === "aktif";
   }
 
   const [products, total] = await Promise.all([
@@ -95,7 +89,6 @@ export async function createProduct(
     sellingPrice: Number(String(formData.get("sellingPrice")).replace(/[^0-9]/g, "")) || 0,
     stock: Number(formData.get("stock")) || 0,
     minimumStock: Number(formData.get("minimumStock")) || 15,
-    isActive: formData.get("isActive") === "true",
   };
 
   const validatedFields = ProductSchema.safeParse(rawData);
@@ -185,7 +178,6 @@ export async function updateProduct(
     sellingPrice: Number(String(formData.get("sellingPrice")).replace(/[^0-9]/g, "")) || 0,
     stock: Number(formData.get("stock")) || 0,
     minimumStock: Number(formData.get("minimumStock")) || 15,
-    isActive: formData.get("isActive") === "true",
   };
 
   const validatedFields = ProductSchema.safeParse(rawData);
@@ -245,59 +237,32 @@ export async function updateProduct(
   return { success: true, message: "Produk berhasil diperbarui." };
 }
 
-export async function toggleProductStatus(id: string) {
-  const product = await prisma.product.findUnique({ where: { id } });
-
-  if (!product) {
-    return { error: "Produk tidak ditemukan." };
-  }
-
-  await prisma.product.update({
-    where: { id },
-    data: { isActive: !product.isActive },
-  });
-
-  revalidatePath("/produk");
-  revalidatePath("/inventaris");
-
-  return { success: true };
-}
-
 export async function deleteProduct(id: string) {
   const product = await prisma.product.findUnique({
     where: { id },
-    include: {
-      purchaseItems: { take: 1 },
-      salesItems: { take: 1 },
-    },
   });
 
   if (!product) {
     return { error: "Produk tidak ditemukan." };
   }
 
-  // If product has transactions, soft delete
-  if (product.purchaseItems.length > 0 || product.salesItems.length > 0) {
-    await prisma.product.update({
-      where: { id },
-      data: { isActive: false },
-    });
-
-    revalidatePath("/produk");
-    return {
-      success: true,
-      message: "Produk telah dinonaktifkan karena memiliki riwayat transaksi.",
-    };
-  }
-
-  // No transactions, hard delete
-  await prisma.stockMovement.deleteMany({ where: { productId: id } });
-  await prisma.product.delete({ where: { id } });
+  // Populate snapshot fields on related sales and purchase items before deleting product
+  await prisma.$transaction([
+    prisma.salesItem.updateMany({
+      where: { productId: id, productName: null },
+      data: { productName: product.name, productSku: product.sku },
+    }),
+    prisma.purchaseItem.updateMany({
+      where: { productId: id, productName: null },
+      data: { productName: product.name, productSku: product.sku },
+    }),
+    prisma.product.delete({ where: { id } }),
+  ]);
 
   revalidatePath("/produk");
   revalidatePath("/inventaris");
 
-  return { success: true, message: "Produk berhasil dihapus." };
+  return { success: true, message: "Produk berhasil dihapus permanen." };
 }
 
 // Helper: get unique sizes from products

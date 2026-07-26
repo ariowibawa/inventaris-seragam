@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search") || "";
 
-  const where: Record<string, unknown> = { isActive: true };
+  const where: Record<string, unknown> = {};
 
   if (search) {
     where.OR = [

@@ -129,44 +129,44 @@ export default function PembelianClient({
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Pembelian</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Kelola data pembelian seragam dari supplier.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Pembelian</h1>
+          <p className="text-muted-foreground mt-1 text-xs sm:text-sm">Kelola data pembelian seragam dari supplier.</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger render={<Button className="bg-[#8a6c5f] hover:bg-[#6b5247] text-white" onClick={() => { setCart([]); setDialogOpen(true); }} />}>
+          <DialogTrigger render={<Button className="w-full sm:w-auto bg-[#8a6c5f] hover:bg-[#6b5247] text-white" onClick={() => { setCart([]); setDialogOpen(true); }} />}>
             <Plus className="mr-2 h-4 w-4" /> Tambah Pembelian
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[700px] p-0 border-[#e5dcd1] bg-[#fdfbf7] shadow-lg overflow-hidden" showCloseButton={false}>
-            <div className="flex justify-between items-center p-6 border-b border-[#e5dcd1]">
-              <DialogTitle className="text-xl font-semibold text-foreground">Tambah Pembelian</DialogTitle>
+          <DialogContent className="w-[95vw] sm:max-w-[720px] max-h-[90vh] p-0 border-[#e5dcd1] bg-[#fdfbf7] shadow-lg overflow-hidden flex flex-col" showCloseButton={false}>
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b border-[#e5dcd1]">
+              <DialogTitle className="text-lg sm:text-xl font-semibold text-foreground">Tambah Pembelian</DialogTitle>
               <DialogClose render={<Button variant="ghost" size="icon" className="text-muted-foreground hover:bg-[#f0e8df]" />}>
                 <X className="h-5 w-5" />
               </DialogClose>
             </div>
             {state?.message && !state.success && (
-              <div className="mx-6 mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{state.message}</div>
+              <div className="mx-4 sm:mx-6 mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{state.message}</div>
             )}
             <form action={(fd) => {
               fd.set("items", JSON.stringify(cart.map((c) => ({ productId: c.productId, quantity: c.quantity, costPrice: c.costPrice }))));
               formAction(fd);
-            }}>
-              <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            }} className="flex-1 flex flex-col overflow-hidden">
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto custom-scrollbar flex-1">
                 {/* Supplier & Date */}
-                <div className="bg-white p-5 rounded-xl border border-[#e5dcd1] shadow-sm">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white p-4 sm:p-5 rounded-xl border border-[#e5dcd1] shadow-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Supplier</Label>
-                      <Input name="supplierName" placeholder="Nama Supplier..." required className="bg-[#fdfbf7] border-[#e5dcd1] h-8" />
+                      <Input name="supplierName" placeholder="Nama Supplier..." required className="bg-[#fdfbf7] border-[#e5dcd1] h-9" />
                     </div>
                     <div className="space-y-2">
                       <Label>Tanggal Pembelian</Label>
                       <Input name="purchaseDate" type="date" defaultValue={new Date().toISOString().split("T")[0]} className="bg-[#fdfbf7] border-[#e5dcd1]" />
                     </div>
-                    <div className="space-y-2 md:col-span-2">
+                    <div className="space-y-2 sm:col-span-2">
                       <Label>Catatan (opsional)</Label>
                       <Input name="notes" placeholder="Catatan pembelian..." className="bg-[#fdfbf7] border-[#e5dcd1]" />
                     </div>
@@ -174,30 +174,32 @@ export default function PembelianClient({
                 </div>
 
                 {/* Add Item */}
-                <div className="bg-white p-5 rounded-xl border border-[#e5dcd1] shadow-sm">
+                <div className="bg-white p-4 sm:p-5 rounded-xl border border-[#e5dcd1] shadow-sm">
                   <h3 className="font-medium text-sm text-[#8a6c5f] mb-3 flex items-center gap-2">
                     <ShoppingCart className="w-4 h-4" /> Tambah Item
                   </h3>
-                  <div className="grid grid-cols-12 gap-3 items-end">
-                    <div className="col-span-5 space-y-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                    <div className="sm:col-span-5 space-y-1">
                       <Label className="text-xs">Produk</Label>
                       <select value={selectedProductId} onChange={(e) => onProductSelect(e.target.value)}
-                        className="flex h-8 w-full items-center rounded-lg border border-[#e5dcd1] bg-[#fdfbf7] px-2.5 py-1 text-sm outline-none">
+                        className="flex h-9 w-full items-center rounded-lg border border-[#e5dcd1] bg-[#fdfbf7] px-2.5 py-1 text-sm outline-none">
                         <option value="">Pilih produk</option>
                         {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                       </select>
                     </div>
-                    <div className="col-span-2 space-y-1">
-                      <Label className="text-xs">Qty</Label>
-                      <Input type="number" min="1" value={itemQty} onChange={(e) => setItemQty(e.target.value)} onFocus={(e) => e.target.select()} className="bg-[#fdfbf7] border-[#e5dcd1] h-8" />
+                    <div className="grid grid-cols-2 sm:contents gap-3">
+                      <div className="sm:col-span-2 space-y-1">
+                        <Label className="text-xs">Qty</Label>
+                        <Input type="number" min="1" value={itemQty} onChange={(e) => setItemQty(e.target.value)} onFocus={(e) => e.target.select()} className="bg-[#fdfbf7] border-[#e5dcd1] h-9" />
+                      </div>
+                      <div className="sm:col-span-3 space-y-1">
+                        <Label className="text-xs">Harga Modal</Label>
+                        <Input type="text" inputMode="numeric" placeholder="0" value={itemCost} onChange={(e) => setItemCost(fmtInput(e.target.value))} onFocus={(e) => e.target.select()} className="bg-[#fdfbf7] border-[#e5dcd1] h-9" />
+                      </div>
                     </div>
-                    <div className="col-span-3 space-y-1">
-                      <Label className="text-xs">Harga Modal</Label>
-                      <Input type="text" inputMode="numeric" placeholder="0" value={itemCost} onChange={(e) => setItemCost(fmtInput(e.target.value))} onFocus={(e) => e.target.select()} className="bg-[#fdfbf7] border-[#e5dcd1] h-8" />
-                    </div>
-                    <div className="col-span-2">
-                      <Button type="button" onClick={addToCart} className="w-full h-8 bg-[#8a6c5f] hover:bg-[#6b5247] text-white text-xs">
-                        <Plus className="w-3 h-3 mr-1" /> Add
+                    <div className="sm:col-span-2">
+                      <Button type="button" onClick={addToCart} className="w-full h-9 bg-[#8a6c5f] hover:bg-[#6b5247] text-white text-xs whitespace-nowrap px-3">
+                        <Plus className="w-3.5 h-3.5 mr-1" /> Add
                       </Button>
                     </div>
                   </div>
@@ -205,7 +207,7 @@ export default function PembelianClient({
 
                 {/* Cart Items */}
                 {cart.length > 0 && (
-                  <div className="bg-white p-5 rounded-xl border border-[#e5dcd1] shadow-sm">
+                  <div className="bg-white p-4 sm:p-5 rounded-xl border border-[#e5dcd1] shadow-sm">
                     <h3 className="font-medium text-sm text-[#8a6c5f] mb-3">Item Pembelian ({cart.length})</h3>
                     <div className="space-y-2">
                       {cart.map((item) => (
@@ -214,7 +216,7 @@ export default function PembelianClient({
                             <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
                             <p className="text-xs text-muted-foreground">{item.quantity} x {fmtRp(item.costPrice)} = {fmtRp(item.quantity * item.costPrice)}</p>
                           </div>
-                          <button type="button" onClick={() => removeFromCart(item.productId)} className="text-red-400 hover:text-red-600 ml-2">
+                          <button type="button" onClick={() => removeFromCart(item.productId)} className="text-red-400 hover:text-red-600 ml-2 p-1">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -228,9 +230,9 @@ export default function PembelianClient({
                 )}
               </div>
 
-              <div className="p-6 border-t border-[#e5dcd1] bg-white flex justify-end gap-3">
-                <DialogClose render={<Button variant="outline" className="border-[#8a6c5f] text-[#8a6c5f] hover:bg-[#8a6c5f]/10" />}>Batal</DialogClose>
-                <Button type="submit" disabled={pending || cart.length === 0} className="bg-[#8a6c5f] hover:bg-[#6b5247] text-white">
+              <div className="p-4 sm:p-6 border-t border-[#e5dcd1] bg-white flex flex-col-reverse sm:flex-row justify-end gap-3">
+                <DialogClose render={<Button variant="outline" className="w-full sm:w-auto border-[#8a6c5f] text-[#8a6c5f] hover:bg-[#8a6c5f]/10" />}>Batal</DialogClose>
+                <Button type="submit" disabled={pending || cart.length === 0} className="w-full sm:w-auto bg-[#8a6c5f] hover:bg-[#6b5247] text-white">
                   {pending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                   Simpan Pembelian
                 </Button>
@@ -241,9 +243,9 @@ export default function PembelianClient({
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-[#fdfbf7] border border-[#e5dcd1] rounded-2xl p-4 flex flex-col md:flex-row gap-4 shadow-sm items-center">
+      <div className="bg-[#fdfbf7] border border-[#e5dcd1] rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:gap-4 shadow-sm items-stretch sm:items-center">
         <div className="relative flex-1 w-full">
-          <div className="text-sm font-medium text-muted-foreground mb-1">Cari Supplier / Invoice</div>
+          <div className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Cari Supplier / Invoice</div>
           <div className="relative">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input value={searchValue} onChange={(e) => setSearchValue(e.target.value)}
@@ -251,21 +253,20 @@ export default function PembelianClient({
               className="pl-9 bg-white border-[#e5dcd1] w-full" placeholder="Masukkan nama..." />
           </div>
         </div>
-        <div className="flex-1 w-full flex flex-col md:flex-row gap-4">
-          <div className="w-full md:w-1/2">
-            <div className="text-sm font-medium text-muted-foreground mb-1">Tanggal Mulai - Akhir</div>
-            <div className="flex gap-2">
-              <Input type="date" value={dateStart} onChange={(e) => setDateStart(e.target.value)} className="bg-white border-[#e5dcd1] flex-1" />
-              <Input type="date" value={dateEnd} onChange={(e) => setDateEnd(e.target.value)} className="bg-white border-[#e5dcd1] flex-1" />
+        <div className="flex-1 w-full flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-end">
+          <div className="w-full sm:flex-1">
+            <div className="text-xs sm:text-sm font-medium text-muted-foreground mb-1">Tanggal Mulai - Akhir</div>
+            <div className="grid grid-cols-2 gap-2">
+              <Input type="date" value={dateStart} onChange={(e) => setDateStart(e.target.value)} className="bg-white border-[#e5dcd1] text-xs sm:text-sm" />
+              <Input type="date" value={dateEnd} onChange={(e) => setDateEnd(e.target.value)} className="bg-white border-[#e5dcd1] text-xs sm:text-sm" />
             </div>
           </div>
-          <div className="flex items-end mt-1 md:mt-0">
-            <Button variant="outline" onClick={applyFilters} className="h-10 bg-[#fdfbf7] border-[#e5dcd1] text-foreground hover:bg-muted shrink-0 w-full md:w-auto">
-              <Filter className="h-4 w-4 mr-2" /> Filter
-            </Button>
-          </div>
+          <Button variant="outline" className="h-10 px-4 bg-white border-[#e5dcd1] text-muted-foreground w-full sm:w-auto justify-center gap-2" onClick={applyFilters}>
+            <Filter className="h-4 w-4" /> Filter
+          </Button>
         </div>
       </div>
+
 
       {/* Table Section */}
       <div className="bg-[#fdfbf7] border border-[#e5dcd1] rounded-2xl shadow-sm overflow-hidden flex flex-col">

@@ -34,7 +34,6 @@ export const ProductSchema = z.object({
   sellingPrice: z.number().min(0, { message: "Harga jual harus >= 0" }),
   stock: z.number().int().min(0, { message: "Stok harus >= 0" }),
   minimumStock: z.number().int().min(0, { message: "Stok minimum harus >= 0" }),
-  isActive: z.boolean().default(true),
 });
 
 export const CategorySchema = z.object({
@@ -107,6 +106,10 @@ export const StockAdjustmentSchema = z.object({
 export const ProfileSchema = z.object({
   name: z.string().min(1, { message: "Nama wajib diisi" }),
   email: z.string().email({ message: "Email tidak valid" }),
+});
+
+export const PaymentMethodSchema = z.object({
+  name: z.string().min(1, { message: "Nama metode pembayaran wajib diisi" }),
 });
 
 

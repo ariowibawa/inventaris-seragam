@@ -282,77 +282,77 @@ export default function LaporanClient({
   const endIdx = Math.min(currentPage * 10, total);
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6" ref={printRef}>
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-4 sm:space-y-6" ref={printRef}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-border pb-4">
-        <h1 className="text-3xl font-bold text-[#4a3a31]">Laporan</h1>
-        <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 border-b border-border pb-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#4a3a31]">Laporan</h1>
+        <div className="grid grid-cols-2 sm:flex gap-2 sm:gap-3">
           <Button
             variant="outline"
-            className="border-[#8a6c5f] text-[#8a6c5f] hover:bg-[#8a6c5f]/10"
+            className="border-[#8a6c5f] text-[#8a6c5f] hover:bg-[#8a6c5f]/10 text-xs sm:text-sm"
             onClick={handleExportExcel}
             disabled={isExporting}
           >
             {isExporting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-1.5 sm:mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <FileText className="mr-2 h-4 w-4" />
+              <FileText className="mr-1.5 sm:mr-2 h-4 w-4" />
             )}
-            {isExporting ? "Mengexport..." : "Export Excel"}
+            {isExporting ? "Exporting..." : "Export Excel"}
           </Button>
           <Button
-            className="bg-[#8a6c5f] hover:bg-[#6b5247] text-white"
+            className="bg-[#8a6c5f] hover:bg-[#6b5247] text-white text-xs sm:text-sm"
             onClick={handlePrint}
           >
-            <Printer className="mr-2 h-4 w-4" /> Print
+            <Printer className="mr-1.5 sm:mr-2 h-4 w-4" /> Print
           </Button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-6 border-b border-border">
+      <div className="flex gap-6 border-b border-border overflow-x-auto">
         {tabs.map((tab) => (
           <button key={tab}
-            className={`pb-3 font-medium text-sm transition-colors relative ${activeTab === tab ? "text-[#6b5247] border-b-2 border-[#6b5247]" : "text-muted-foreground hover:text-[#6b5247]"}`}>
+            className={`pb-3 font-medium text-sm transition-colors relative whitespace-nowrap ${activeTab === tab ? "text-[#6b5247] border-b-2 border-[#6b5247]" : "text-muted-foreground hover:text-[#6b5247]"}`}>
             {tab}
           </button>
         ))}
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[#fdfbf7] border border-[#e5dcd1] rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-[#fdfbf7] border border-[#e5dcd1] rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start mb-2">
-            <span className="text-muted-foreground font-medium">Total Nilai Stok</span>
+            <span className="text-xs sm:text-sm text-muted-foreground font-medium">Total Nilai Stok</span>
             <Landmark className="h-5 w-5 text-[#8a6c5f]" />
           </div>
           <div>
-            <div className="text-3xl font-bold text-[#4a3a31] mb-2">{fmtRp(summary.totalStockValue)}</div>
-            <div className="flex items-center text-sm text-muted-foreground">
-              <TrendingUp className="h-4 w-4 mr-1 text-emerald-600" />
+            <div className="text-2xl sm:text-3xl font-bold text-[#4a3a31] mb-2 break-all">{fmtRp(summary.totalStockValue)}</div>
+            <div className="flex items-center text-xs sm:text-sm text-muted-foreground">
+              <TrendingUp className="h-4 w-4 mr-1 text-emerald-600 shrink-0" />
               <span className="text-emerald-600 font-medium mr-1">Berdasarkan harga modal</span>
             </div>
           </div>
         </div>
-        <div className="bg-[#fdfbf7] border border-[#e5dcd1] rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+        <div className="bg-[#fdfbf7] border border-[#e5dcd1] rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-start mb-2">
-            <span className="text-muted-foreground font-medium">Total Item Tersedia</span>
+            <span className="text-xs sm:text-sm text-muted-foreground font-medium">Total Item Tersedia</span>
             <ClipboardList className="h-5 w-5 text-[#8a6c5f]" />
           </div>
           <div>
-            <div className="text-3xl font-bold text-[#4a3a31] mb-2">{fmtNum(summary.totalItems)} <span className="text-xl font-semibold">pcs</span></div>
-            <div className="text-sm text-muted-foreground">Total stok aktif</div>
+            <div className="text-2xl sm:text-3xl font-bold text-[#4a3a31] mb-2">{fmtNum(summary.totalItems)} <span className="text-lg font-semibold">pcs</span></div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Total stok aktif</div>
           </div>
         </div>
-        <div className="bg-[#fcf8f8] border border-rose-100 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+        <div className="bg-[#fcf8f8] border border-rose-100 rounded-2xl p-4 sm:p-6 shadow-sm flex flex-col justify-between sm:col-span-2 lg:col-span-1">
           <div className="flex justify-between items-start mb-2">
-            <span className="text-muted-foreground font-medium">Item Stok Rendah</span>
+            <span className="text-xs sm:text-sm text-muted-foreground font-medium">Item Stok Rendah</span>
             <AlertTriangle className="h-5 w-5 text-rose-500" />
           </div>
           <div>
-            <div className="text-3xl font-bold text-rose-600 mb-2">{summary.lowStockCount} SKU</div>
-            <div className="flex items-center text-sm text-rose-600 font-medium">
-              <AlertTriangle className="h-4 w-4 mr-1" /> Perlu re-order segera
+            <div className="text-2xl sm:text-3xl font-bold text-rose-600 mb-2">{summary.lowStockCount} SKU</div>
+            <div className="flex items-center text-xs sm:text-sm text-rose-600 font-medium">
+              <AlertTriangle className="h-4 w-4 mr-1 shrink-0" /> Perlu re-order segera
             </div>
           </div>
         </div>
@@ -360,15 +360,16 @@ export default function LaporanClient({
 
       {/* Table */}
       <div className="bg-[#fdfbf7] border border-[#e5dcd1] rounded-2xl shadow-sm overflow-hidden flex flex-col">
-        <div className="p-5 border-b border-[#e5dcd1] flex flex-col sm:flex-row justify-between items-center gap-4">
-          <h2 className="text-lg font-bold text-[#4a3a31]">Rincian Stok Seragam</h2>
+        <div className="p-4 sm:p-5 border-b border-[#e5dcd1] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
+          <h2 className="text-base sm:text-lg font-bold text-[#4a3a31]">Rincian Stok Seragam</h2>
           <div className="relative w-full sm:w-[300px]">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-9 bg-white border-[#e5dcd1]" placeholder="Cari kode atau nama..."
+            <Input className="pl-9 bg-white border-[#e5dcd1] w-full" placeholder="Cari kode atau nama..."
               value={searchValue} onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") applySearch(); }} />
           </div>
         </div>
+
 
         <div className="overflow-x-auto">
           <Table>

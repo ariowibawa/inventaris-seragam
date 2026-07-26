@@ -94,74 +94,77 @@ export default function CashflowClient({
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Cashflow</h1>
-          <p className="text-muted-foreground mt-1">Ringkasan arus kas masuk dan keluar operasional.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Cashflow</h1>
+          <p className="text-muted-foreground mt-1 text-xs sm:text-sm">Ringkasan arus kas masuk dan keluar operasional.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Input type="date" value={dateStart} onChange={(e) => setDateStart(e.target.value)} className="bg-white border-[#e5dcd1] h-9 text-sm" />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Input type="date" value={dateStart} onChange={(e) => setDateStart(e.target.value)} className="bg-white border-[#e5dcd1] h-9 text-xs sm:text-sm flex-1" />
             <span className="text-muted-foreground text-sm">–</span>
-            <Input type="date" value={dateEnd} onChange={(e) => setDateEnd(e.target.value)} className="bg-white border-[#e5dcd1] h-9 text-sm" />
-            <Button variant="outline" size="icon" className="h-9 w-9 bg-white border-[#e5dcd1]" onClick={applyFilters}>
+            <Input type="date" value={dateEnd} onChange={(e) => setDateEnd(e.target.value)} className="bg-white border-[#e5dcd1] h-9 text-xs sm:text-sm flex-1" />
+            <Button variant="outline" size="icon" className="h-9 w-9 bg-white border-[#e5dcd1] shrink-0" onClick={applyFilters}>
               <Filter className="w-4 h-4" />
             </Button>
           </div>
-          <Button className="bg-[#8a6c5f] hover:bg-[#6b5247] text-white" onClick={() => openDialog("income")}>
-            <Plus className="w-4 h-4 mr-2" /> Pemasukan
-          </Button>
-          <Button variant="outline" className="border-[#8a6c5f] text-[#8a6c5f] hover:bg-[#8a6c5f]/10 bg-transparent" onClick={() => openDialog("expense")}>
-            <Minus className="w-4 h-4 mr-2" /> Pengeluaran
-          </Button>
+          <div className="grid grid-cols-2 sm:flex gap-2">
+            <Button className="bg-[#8a6c5f] hover:bg-[#6b5247] text-white text-xs sm:text-sm" onClick={() => openDialog("income")}>
+              <Plus className="w-4 h-4 mr-1 sm:mr-2" /> Pemasukan
+            </Button>
+            <Button variant="outline" className="border-[#8a6c5f] text-[#8a6c5f] hover:bg-[#8a6c5f]/10 bg-transparent text-xs sm:text-sm" onClick={() => openDialog("expense")}>
+              <Minus className="w-4 h-4 mr-1 sm:mr-2" /> Pengeluaran
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#fdfbf7] p-6 rounded-2xl border border-[#e5dcd1] shadow-sm flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-muted-foreground">Saldo Kas</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-[#fdfbf7] p-4 sm:p-6 rounded-2xl border border-[#e5dcd1] shadow-sm flex flex-col justify-between">
+          <div className="flex justify-between items-start mb-3 sm:mb-4">
+            <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Saldo Kas</h3>
             <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center"><Wallet className="w-4 h-4" /></div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-foreground mb-1">{fmtRp(summary.saldo)}</div>
-            <div className="text-xs text-muted-foreground mt-2">Saldo saat ini</div>
+            <div className="text-xl sm:text-2xl font-bold text-foreground mb-1 break-all">{fmtRp(summary.saldo)}</div>
+            <div className="text-xs text-muted-foreground mt-1">Saldo saat ini</div>
           </div>
         </div>
-        <div className="bg-[#fdfbf7] p-6 rounded-2xl border border-[#e5dcd1] shadow-sm flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-muted-foreground">Total Pemasukan</h3>
+        <div className="bg-[#fdfbf7] p-4 sm:p-6 rounded-2xl border border-[#e5dcd1] shadow-sm flex flex-col justify-between">
+          <div className="flex justify-between items-start mb-3 sm:mb-4">
+            <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Total Pemasukan</h3>
             <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center"><ArrowDownLeft className="w-4 h-4" /></div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-foreground mb-1">{fmtRp(summary.totalIncome)}</div>
-            <div className="text-xs text-muted-foreground mt-2">Periode ini</div>
+            <div className="text-xl sm:text-2xl font-bold text-foreground mb-1 break-all">{fmtRp(summary.totalIncome)}</div>
+            <div className="text-xs text-muted-foreground mt-1">Periode ini</div>
           </div>
         </div>
-        <div className="bg-[#fdfbf7] p-6 rounded-2xl border border-[#e5dcd1] shadow-sm flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-muted-foreground">Total Pengeluaran</h3>
+        <div className="bg-[#fdfbf7] p-4 sm:p-6 rounded-2xl border border-[#e5dcd1] shadow-sm flex flex-col justify-between">
+          <div className="flex justify-between items-start mb-3 sm:mb-4">
+            <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Total Pengeluaran</h3>
             <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center"><ArrowUpRight className="w-4 h-4" /></div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-foreground mb-1">{fmtRp(summary.totalExpense)}</div>
-            <div className="text-xs text-muted-foreground mt-2">Periode ini</div>
+            <div className="text-xl sm:text-2xl font-bold text-foreground mb-1 break-all">{fmtRp(summary.totalExpense)}</div>
+            <div className="text-xs text-muted-foreground mt-1">Periode ini</div>
           </div>
         </div>
-        <div className="bg-[#8a6c5f] p-6 rounded-2xl shadow-sm flex flex-col justify-between text-white">
-          <div className="flex justify-between items-start mb-4">
-            <h3 className="text-sm font-medium text-white/90">Laba Bersih</h3>
+        <div className="bg-[#8a6c5f] p-4 sm:p-6 rounded-2xl shadow-sm flex flex-col justify-between text-white">
+          <div className="flex justify-between items-start mb-3 sm:mb-4">
+            <h3 className="text-xs sm:text-sm font-medium text-white/90">Laba Bersih</h3>
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"><TrendingUp className="w-4 h-4 text-white" /></div>
           </div>
           <div>
-            <div className="text-2xl font-bold mb-1">{fmtRp(summary.netProfit)}</div>
-            <div className="text-xs text-white/80 mt-2">Periode ini</div>
+            <div className="text-xl sm:text-2xl font-bold mb-1 break-all">{fmtRp(summary.netProfit)}</div>
+            <div className="text-xs text-white/80 mt-1">Periode ini</div>
           </div>
         </div>
       </div>
+
 
       {/* Transaction Table */}
       <div className="bg-card border-border border rounded-2xl shadow-sm overflow-hidden flex flex-col">
@@ -262,9 +265,9 @@ export default function CashflowClient({
 
       {/* Add Manual Cashflow Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] p-0 border-[#e5dcd1] bg-[#fdfbf7] shadow-lg overflow-hidden" showCloseButton={false}>
-          <div className="flex justify-between items-center p-6 border-b border-[#e5dcd1]">
-            <DialogTitle className="text-xl font-semibold text-foreground">
+        <DialogContent className="w-[95vw] sm:max-w-[550px] max-h-[90vh] p-0 border-[#e5dcd1] bg-[#fdfbf7] shadow-lg overflow-hidden flex flex-col" showCloseButton={false}>
+          <div className="flex justify-between items-center p-4 sm:p-6 border-b border-[#e5dcd1]">
+            <DialogTitle className="text-lg sm:text-xl font-semibold text-foreground">
               {dialogType === "income" ? "Tambah Pemasukan" : "Tambah Pengeluaran"}
             </DialogTitle>
             <DialogClose render={<Button variant="ghost" size="icon" className="text-muted-foreground hover:bg-[#f0e8df]" />}>
@@ -272,14 +275,14 @@ export default function CashflowClient({
             </DialogClose>
           </div>
           {state?.message && !state.success && (
-            <div className="mx-6 mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{state.message}</div>
+            <div className="mx-4 sm:mx-6 mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">{state.message}</div>
           )}
-          <form action={formAction}>
+          <form action={formAction} className="flex-1 flex flex-col overflow-hidden">
             <input type="hidden" name="type" value={dialogType} />
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
               <div className="space-y-2">
                 <Label>Kategori</Label>
-                <select name="category" className="flex h-8 w-full items-center rounded-lg border border-[#e5dcd1] bg-white px-2.5 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
+                <select name="category" className="flex h-9 w-full items-center rounded-lg border border-[#e5dcd1] bg-white px-2.5 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50">
                   <option value="">-- Pilih Kategori --</option>
                   {filteredCategories.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
                 </select>
@@ -301,9 +304,9 @@ export default function CashflowClient({
                 <Input name="notes" placeholder="Catatan transaksi..." className="bg-white border-[#e5dcd1]" />
               </div>
             </div>
-            <div className="p-6 border-t border-[#e5dcd1] bg-white flex justify-end gap-3">
-              <DialogClose render={<Button variant="outline" className="border-[#8a6c5f] text-[#8a6c5f] hover:bg-[#8a6c5f]/10" />}>Batal</DialogClose>
-              <Button type="submit" disabled={pending} className="bg-[#8a6c5f] hover:bg-[#6b5247] text-white">
+            <div className="p-4 sm:p-6 border-t border-[#e5dcd1] bg-white flex flex-col-reverse sm:flex-row justify-end gap-3">
+              <DialogClose render={<Button variant="outline" className="w-full sm:w-auto border-[#8a6c5f] text-[#8a6c5f] hover:bg-[#8a6c5f]/10" />}>Batal</DialogClose>
+              <Button type="submit" disabled={pending} className="w-full sm:w-auto bg-[#8a6c5f] hover:bg-[#6b5247] text-white">
                 {pending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                 Simpan
               </Button>
@@ -311,6 +314,7 @@ export default function CashflowClient({
           </form>
         </DialogContent>
       </Dialog>
+
     </div>
   );
 }
